@@ -268,7 +268,8 @@ function lastRep(id){const r=reps.filter(x=>x.aula===id).sort((x,y)=>y.ts-x.ts)[
 async function rpc(fn,body){const r=await fetch(SUPA.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':SUPA.key,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):null}
 function myPres(){const me=lsGet('aule_me');if(!me)return null;if(new Date(me.scade)<=new Date()){lsSet('aule_me',null);return null}return me}
 async function loadPres(){if(!PRES)return;try{pres=(await rpc('presenti'))||[];const me=myPres();if(me&&!pres.some(p=>p.id===me.id))lsSet('aule_me',null);render()}catch(e){}}
-function presOn(){return PRES&&st.date===iso(new Date())}
+const PROVA=(()=>{try{return new URLSearchParams(location.search).has('prova')}catch(e){return false}})();
+function presOn(){return PRES&&(PROVA||st.date===iso(new Date()))}
 function presOf(id){return pres.filter(p=>p.aula===id)}
 function whoLine(a){if(!presOn())return'';const ps=presOf(a.id);if(!ps.length)return'';const me=myPres();return`<div class="who"><b>Qui ora:</b>${ps.map(p=>`<span class="${me&&me.id===p.id?'me':''}">${esc(p.nome)}</span>`).join('')}</div>`}
 function presCtl(a){if(!presOn())return'';const me=myPres();
